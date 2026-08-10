@@ -1,0 +1,29 @@
+[
+  {
+    "country": "brazil",
+    "nodes": 101,
+    "pair_slots": 2845,
+    "covered": 435,
+    "coverage_pct": 15.29,
+    "empty_tenders": 30,
+    "empty_pct": 29.7
+  },
+  {
+    "country": "japan",
+    "nodes": 1080,
+    "pair_slots": 82956,
+    "covered": 41695,
+    "coverage_pct": 50.26,
+    "empty_tenders": 32,
+    "empty_pct": 2.96
+  },
+  {
+    "country": "usa",
+    "nodes": 2141,
+    "pair_slots": 4582,
+    "covered": 4323,
+    "coverage_pct": 94.35,
+    "empty_tenders": 64,
+    "empty_pct": 2.99
+  }
+]

@@ -9,8 +9,7 @@
  "display_name": "Python 3 (ipykernel)",
  "language": "python",
  "metadata": {
-  "debugger": true,
-  "supported_encryption": "curve"
+  "debugger": true
  },
  "kernel_protocol_version": "5.5"
 }
