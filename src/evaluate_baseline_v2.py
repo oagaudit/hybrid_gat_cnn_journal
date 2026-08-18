@@ -34,6 +34,21 @@ Usage:
 """
 
 import os
+
+# ---------------------------------------------------------------------------
+# macOS OpenMP guard. MUST run before torch / sklearn / xgboost are imported.
+#
+# On Apple Silicon this script previously segfaulted inside XGBoost
+# (XGQuantileDMatrixCreateFromCallback -> __kmp_allocate_task_team). The crash
+# report showed THREE separate libomp.dylib images loaded into one process:
+# PyTorch ships its own, scikit-learn ships its own, and Homebrew's xgboost
+# links /opt/homebrew/lib/libomp.dylib. Two OpenMP runtimes in one process is
+# undefined behaviour and reliably crashes when the second one tries to spawn a
+# thread team. These two variables make the situation survivable.
+# ---------------------------------------------------------------------------
+os.environ.setdefault("KMP_DUPLICATE_LIB_OK", "TRUE")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+
 import sys
 import json
 import argparse
@@ -44,7 +59,7 @@ import torch
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier, HistGradientBoostingClassifier
 from sklearn.model_selection import ParameterGrid
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -54,6 +69,7 @@ from src.utils.config_loader import get_project_root  # noqa: E402
 PROJECT_ROOT = get_project_root()
 COUNTRIES = ['brazil', 'japan', 'usa']
 
+USE_XGB = False   # set from --use_xgboost; see note above about the segfault
 try:
     from xgboost import XGBClassifier
     HAS_XGB = True
@@ -75,11 +91,22 @@ def make_models(seed, tuned=False):
                                                    random_state=seed))]),
         'RF_default': RandomForestClassifier(class_weight='balanced',
                                              random_state=seed, n_jobs=-1),
+        # scikit-learn's own gradient boosting. Same model family as XGBoost,
+        # comparable accuracy on tabular data, and no second OpenMP runtime, so
+        # this is the default gradient-boosting baseline for the paper.
+        'HistGB': HistGradientBoostingClassifier(random_state=seed,
+                                                 max_iter=300, max_depth=6,
+                                                 learning_rate=0.1,
+                                                 class_weight='balanced'),
     }
-    if HAS_XGB:
+    if USE_XGB and HAS_XGB:
+        # tree_method='exact' avoids the QuantileDMatrix code path that the
+        # crash report pointed at; n_jobs=1 keeps XGBoost from spawning its own
+        # thread team on the conflicting runtime.
         m['XGB'] = XGBClassifier(random_state=seed, n_estimators=300,
                                  max_depth=6, learning_rate=0.1,
-                                 eval_metric='logloss', n_jobs=-1)
+                                 eval_metric='logloss', n_jobs=1,
+                                 tree_method='exact', device='cpu')
     return m
 
 
@@ -104,9 +131,19 @@ def main():
     ap.add_argument('--out_dir', required=True)
     ap.add_argument('--n_runs', type=int, default=5)
     ap.add_argument('--base_seed', type=int, default=43)
+    ap.add_argument('--use_xgboost', action='store_true',
+                    help='Also fit XGBoost. Off by default: on Apple Silicon it '
+                         'loads a second OpenMP runtime alongside PyTorch and '
+                         'can segfault the process. HistGB covers the same '
+                         'baseline without the risk.')
     ap.add_argument('--screens_only', action='store_true',
                     help='use only the last 7 dims (fair baseline for M2/M3)')
     args = ap.parse_args()
+
+    global USE_XGB
+    USE_XGB = args.use_xgboost
+    if USE_XGB and not HAS_XGB:
+        print("--use_xgboost given but xgboost is not installed; skipping it.")
 
     os.makedirs(args.out_dir, exist_ok=True)
     X, y, tr, va, te = load_features(args.node_feature_pt)
@@ -160,11 +197,14 @@ def main():
     summary.to_csv(os.path.join(args.out_dir, 'baseline_summary.csv'))
     with open(os.path.join(args.out_dir, 'rf_tuning.json'), 'w') as f:
         json.dump({'best_params': rf_params, 'val_f1': rf_val_f1,
-                   'xgboost_available': HAS_XGB}, f, indent=2)
+                   'xgboost_installed': HAS_XGB,
+                   'xgboost_used': USE_XGB}, f, indent=2)
     print("\n" + summary.round(4).to_string())
-    if not HAS_XGB:
-        print("\nNOTE: xgboost not installed. `pip install xgboost` and re-run "
-              "to include the gradient-boosting baseline.")
+    if not USE_XGB:
+        print("\nNOTE: gradient boosting is covered by HistGB (scikit-learn). "
+              "XGBoost is off by default because it segfaults when a second "
+              "OpenMP runtime is loaded alongside PyTorch on macOS ARM. "
+              "Pass --use_xgboost only if you have verified it runs.")
 
 
 if __name__ == '__main__':

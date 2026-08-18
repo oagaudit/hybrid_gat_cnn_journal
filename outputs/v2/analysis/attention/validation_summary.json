@@ -1,0 +1,20 @@
+{
+  "all_tenders": {
+    "n_pairs": 46453,
+    "cartel_pair_share_by_count": 0.0,
+    "cartel_pair_share_of_attention_mass": 0.0,
+    "concentration_ratio": null
+  },
+  "flagged_tenders": {
+    "n_pairs": 9008,
+    "cartel_pair_share_by_count": 0.0,
+    "cartel_pair_share_of_attention_mass": 0.0,
+    "concentration_ratio": null
+  },
+  "true_collusive": {
+    "n_pairs": 5603,
+    "cartel_pair_share_by_count": 0.0,
+    "cartel_pair_share_of_attention_mass": 0.0,
+    "concentration_ratio": null
+  }
+}
