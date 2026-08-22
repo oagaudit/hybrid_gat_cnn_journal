@@ -1,0 +1,38 @@
+[
+  {
+    "scope": "pooled",
+    "edge_homophily": 0.8547,
+    "null_homophily": 0.7248,
+    "null_analytic": 0.7244,
+    "excess": 0.13,
+    "n_edges": 1254360,
+    "positive_rate": 0.165
+  },
+  {
+    "scope": "brazil",
+    "edge_homophily": 0.6555,
+    "null_homophily": 0.5563,
+    "null_analytic": 0.5556,
+    "excess": 0.0992,
+    "n_edges": 3106,
+    "positive_rate": 0.3267
+  },
+  {
+    "scope": "japan",
+    "edge_homophily": 0.8318,
+    "null_homophily": 0.7965,
+    "null_analytic": 0.798,
+    "excess": 0.0353,
+    "n_edges": 89022,
+    "positive_rate": 0.1139
+  },
+  {
+    "scope": "usa",
+    "edge_homophily": 0.857,
+    "null_homophily": 0.7009,
+    "null_analytic": 0.7007,
+    "excess": 0.1561,
+    "n_edges": 1162232,
+    "positive_rate": 0.1831
+  }
+]
