@@ -1,0 +1,39 @@
+{
+  "all_tenders": {
+    "n_pairs": 46453,
+    "cartel_pair_share_by_count": 0.3661,
+    "cartel_pair_share_of_attention_mass": 0.3444,
+    "concentration_ratio": 0.9409
+  },
+  "flagged_tenders": {
+    "n_pairs": 9008,
+    "cartel_pair_share_by_count": 0.9861,
+    "cartel_pair_share_of_attention_mass": 0.9769,
+    "concentration_ratio": 0.9907
+  },
+  "true_collusive": {
+    "n_pairs": 5603,
+    "cartel_pair_share_by_count": 1.0,
+    "cartel_pair_share_of_attention_mass": 1.0,
+    "concentration_ratio": 1.0
+  },
+  "true_collusive_brazil": {
+    "n_pairs": 54,
+    "cartel_pair_share_by_count": 1.0,
+    "cartel_pair_share_of_attention_mass": 1.0,
+    "concentration_ratio": 1.0
+  },
+  "true_collusive_japan": {
+    "n_pairs": 4344,
+    "cartel_pair_share_by_count": 1.0,
+    "cartel_pair_share_of_attention_mass": 1.0,
+    "concentration_ratio": 1.0
+  },
+  "true_collusive_usa": {
+    "n_pairs": 1205,
+    "cartel_pair_share_by_count": 1.0,
+    "cartel_pair_share_of_attention_mass": 1.0,
+    "concentration_ratio": 1.0
+  },
+  "_note": "concentration_ratio = 1.0 means attention is spread exactly in proportion to how common cartel pairs are, i.e. no selectivity. Above 1 means the bridge preferentially attends to verified cartel pairs."
+}

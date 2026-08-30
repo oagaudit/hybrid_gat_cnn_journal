@@ -1,0 +1,17 @@
+1-hop neighbour vote  (NO features at all)
+    PR-AUC  = 0.8998   <-- threshold-free, use this
+    ROC-AUC = 0.9766   <-- threshold-free, use this
+    F1 @0.50      = 0.6452 (P=0.9302 R=0.4938)
+    F1 @best=0.286 = 0.8639 (P=0.8295 R=0.9012)
+    test nodes with no known neighbour: 0
+    per country:
+      brazil  n=   16 base=0.312 PR-AUC=0.8767 F1best=0.9091
+      japan   n=  162 base=0.111 PR-AUC=0.5038 F1best=0.6531
+      usa     n=  321 base=0.181 PR-AUC=0.9759 F1best=0.9431
+
+2-hop neighbour vote  (NO features at all)
+    PR-AUC  = 0.4488   <-- threshold-free, use this
+    ROC-AUC = 0.8109   <-- threshold-free, use this
+    F1 @0.50      = 0.0244 (P=1.0000 R=0.0123)
+    F1 @best=0.190 = 0.5368 (P=0.4133 R=0.7654)
+    test nodes with no known neighbour: 0

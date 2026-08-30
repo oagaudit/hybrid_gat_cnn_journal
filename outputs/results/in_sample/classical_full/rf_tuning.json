@@ -1,0 +1,10 @@
+{
+  "best_params": {
+    "max_depth": null,
+    "min_samples_leaf": 1,
+    "n_estimators": 200
+  },
+  "val_f1": 0.8609271523178808,
+  "xgboost_installed": true,
+  "xgboost_used": false
+}
