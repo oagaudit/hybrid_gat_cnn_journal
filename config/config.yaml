@@ -1,0 +1,41 @@
+# Configuration for Hybrid GAT-CNN Bid-Rigging Detection
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"  
+  images_dir: "outputs/images"
+  graph_dir: "outputs/graph_data"
+  splits_dir: "outputs/splits"
+  log_dir: "outputs/logs"
+  model_dir: "outputs/models"
+  graph_dir: "outputs/graph_data"   
+
+countries:
+  - name: "brazil"
+    file: "DB_Collusion_Brazil_processed.csv"
+  - name: "japan"
+    file: "DB_Collusion_Japan_processed.csv"
+  - name: "usa"
+    file: "DB_Collusion_America_processed.csv"
+
+preprocessing:
+  min_bids: 2               
+  image_size: 96
+  use_hdf5: true            # true = use HDF5 , false = use PNG
+
+image_gen:
+  dpi: 100
+  marker_size: 10
+  random_seed: 42
+  min_interactions: 3       
+  add_context: true         
+  context_alpha: 0.3        
+  context_marker_size: 4
+
+split_in_sample:
+  train_ratio: 0.70
+  val_ratio: 0.15
+  test_ratio: 0.15
+
+split:
+  random_seed: 42

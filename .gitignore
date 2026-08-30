@@ -1,0 +1,92 @@
+# ===========================================================================
+#  .gitignore
+#
+#  Rule of thumb: the repository holds code, configuration and the small
+#  summary tables that back the manuscript. Everything that a run produces
+#  or that can be downloaded from its original source stays out.
+# ===========================================================================
+
+# --- Python environment ----------------------------------------------------
+.venv/
+venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.Python
+
+# --- Data ------------------------------------------------------------------
+# The procurement records belong to Garcia Rodriguez et al. and are obtained
+# from the DOI given in the README. We do not redistribute them.
+data/raw/
+data/processed/
+data/interim/
+*.parquet
+
+# --- Generated artefacts ---------------------------------------------------
+# Everything under outputs/ is reproducible from run_all.sh. The heavy
+# intermediate stages are excluded wholesale; the small summary tables under
+# outputs/results/ that back the manuscript are kept so that a reader can
+# check the numbers without a 12-hour rerun.
+#
+# Note on the rules below: a blanket "outputs/" would stop git descending
+# into the directory at all, and a later "!outputs/results/" could then never
+# take effect. The excluded subdirectories are therefore listed one by one.
+outputs/images/
+outputs/models/
+outputs/models_fold_*/
+outputs/embeddings/
+outputs/embeddings_fold_*/
+outputs/graph_data/
+outputs/node_features/
+outputs/pair_sets/
+outputs/splits/
+outputs/logs/
+outputs/figures/
+
+# Inside outputs/results/ keep summary.json, results.csv, the post-hoc
+# tables and the attention summaries; drop checkpoints, per-epoch traces and
+# the per-pair attention dump, which is large and regenerable.
+outputs/results/**/*.pt
+outputs/results/**/*.pth
+outputs/results/**/*.npy
+outputs/results/**/train.log
+outputs/results/**/history_run*.csv
+outputs/results/analysis/attention/attention_by_pair.csv
+outputs/results/figures/
+
+# --- Model checkpoints and binaries anywhere -------------------------------
+*.pth
+*.pt
+*.h5
+*.npy
+*.npz
+*.ckpt
+
+# --- Archives --------------------------------------------------------------
+*.zip
+*.tar
+*.tar.gz
+*.7z
+
+# --- Logs ------------------------------------------------------------------
+*.log
+nohup.out
+
+# --- Notebooks -------------------------------------------------------------
+.ipynb_checkpoints/
+
+# --- Editor and OS junk ----------------------------------------------------
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# --- Secrets ---------------------------------------------------------------
+.env
+*.key
+*.pem

@@ -1,0 +1,27 @@
+# Direct dependencies, pinned to the versions used to produce the results in
+# the manuscript. The full resolved environment is in requirements-lock.txt.
+#
+#     pip install -r requirements.txt
+#
+# Notes
+#   Install torch before torch-geometric: the geometric wheels are built
+#   against a specific torch version.
+#   xgboost is deliberately absent. evaluate_baseline.py uses scikit-learn's
+#   HistGradientBoostingClassifier for the gradient-boosting baseline,
+#   because loading XGBoost's OpenMP runtime alongside PyTorch segfaults on
+#   Apple Silicon. Pass --use_xgboost only after verifying it runs locally.
+
+torch==2.11.0
+torchvision==0.26.0
+torch-geometric==2.7.0
+
+numpy==2.4.4
+pandas==3.0.2
+pyarrow==23.0.1
+scipy==1.17.1
+scikit-learn==1.8.0
+
+matplotlib==3.10.8
+h5py==3.16.0
+PyYAML==6.0.3
+tqdm==4.67.3
