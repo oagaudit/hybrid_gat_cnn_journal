@@ -153,7 +153,7 @@ liability. Output is intended to prioritise tenders for human review.
   author  = {Nakphon, Mati},
   title   = {When does visual information improve cross-market bid-rigging
              detection? Evidence from three procurement markets},
-  journal = {Journal of Computational Social Science},
+  journal = {...},
   year    = {2026},
   note    = {Under review}
 }
