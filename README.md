@@ -83,7 +83,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Python 3.13, PyTorch 2.11, PyTorch Geometric 2.7. Roughly 12 hours on an
+Python 3.13, PyTorch 2.11, PyTorch Geometric 2.7. Roughly 20 hours on an
 Apple M3 with 16 GB.
 
 ## Data
