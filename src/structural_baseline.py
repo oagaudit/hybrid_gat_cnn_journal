@@ -38,6 +38,7 @@ import types
 import argparse
 
 import numpy as np
+import pandas as pd
 import torch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -71,11 +72,93 @@ def neighbour_vote(edge_index, num_nodes, known_mask, known_y, hops=1):
     return scores
 
 
+def sweep(args):
+    """Run the baseline under the few-shot protocol at several label budgets.
+
+    The within-market version of this baseline answers whether topology alone
+    predicts the label. The cross-market version answers a second question
+    that matters just as much: in a few-shot run, the target market's labels
+    are visible during training, so the same propagation is available again.
+    Reporting the baseline at each budget alongside the trained models shows
+    whether the transfer curve reflects learning or a second round of label
+    propagation. A baseline that stays flat while the models climb settles the
+    question; one that climbs with them changes the conclusion.
+    """
+    rows = []
+    for country in ['brazil', 'japan', 'usa']:
+        pair_dir = args.pair_set_dir_template.format(country=country)
+        if not os.path.isdir(pair_dir):
+            print(f"  {pair_dir} not found, skipping {country}")
+            continue
+        data = load_and_merge(pair_dir)
+        for ratio in args.ratios:
+            m = types.SimpleNamespace(test_country=country,
+                                      fine_tune_ratio=ratio,
+                                      val_ratio=args.val_ratio, seed=args.seed)
+            train_mask, val_mask, test_mask, _ = build_masks(data, m)
+            known = train_mask | val_mask
+            n = data['num_nodes']
+            y = data['y']
+            te = test_mask.numpy()
+
+            # only target-market labels can propagate to target-market tests,
+            # because the graph has no edge between markets
+            tgt = np.asarray(data['node_country']) == country
+            n_known_target = int((known.numpy() & tgt).sum())
+
+            s = neighbour_vote(data['edge_index'], n, known, y, hops=1)
+            isolated = int(np.isnan(s[te]).sum())
+            s = np.nan_to_num(s, nan=float(y[known].float().mean()))
+            yt, st = y[test_mask].numpy(), s[te]
+            if len(np.unique(yt)) < 2:
+                print(f"  {country} at {ratio}: test set has one class, skipped")
+                continue
+            thr = best_threshold(yt, st)
+            m05 = full_metrics(yt, st, 0.5)
+            mb = full_metrics(yt, st, thr)
+            rows.append({'country': country, 'label_budget': ratio,
+                         'n_test': int(test_mask.sum()),
+                         'labelled_target_tenders': n_known_target,
+                         'test_no_labelled_neighbour': isolated,
+                         'base_rate': float(yt.mean()),
+                         'pr_auc': m05['pr_auc'], 'roc_auc': m05['roc_auc'],
+                         'f1_best': mb['f1']})
+            print(f"  {country:7s} budget {ratio:.2f}  "
+                  f"labelled target {n_known_target:5d}  "
+                  f"PR-AUC {m05['pr_auc']:.4f}  F1best {mb['f1']:.4f}")
+
+    if not rows:
+        raise SystemExit("no folds could be evaluated; check --pair_set_dir_template")
+    df = pd.DataFrame(rows)
+    os.makedirs(args.out_dir, exist_ok=True)
+    out = os.path.join(args.out_dir, 'structural_baseline_fewshot.csv')
+    df.to_csv(out, index=False)
+    print(f"\nwrote {out}")
+    print("\nCompare these against the trained models at the same budgets. "
+          "A flat, low curve here means the transfer results are not "
+          "propagation; a curve that tracks the models means they partly are.")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('--pair_set_dir', required=True)
+    ap.add_argument('--pair_set_dir', default='outputs/pair_sets/insample')
     ap.add_argument('--out_dir', default='outputs/results/analysis/graph_leakage')
+    ap.add_argument('--fewshot', action='store_true',
+                    help='run under the leave-one-country-out few-shot '
+                         'protocol at several label budgets instead of '
+                         'within-market')
+    ap.add_argument('--pair_set_dir_template',
+                    default='outputs/pair_sets/fold_{country}')
+    ap.add_argument('--ratios', type=float, nargs='+',
+                    default=[0.0, 0.05, 0.10, 0.15, 0.20, 0.25])
+    ap.add_argument('--val_ratio', type=float, default=0.15)
+    ap.add_argument('--seed', type=int, default=43)
     args = ap.parse_args()
+
+    if args.fewshot:
+        print("Structural baseline under the few-shot transfer protocol\n")
+        sweep(args)
+        return
 
     os.makedirs(args.out_dir, exist_ok=True)
     data = load_and_merge(args.pair_set_dir)

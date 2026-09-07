@@ -64,10 +64,29 @@ def load_sweep(root):
     return pd.DataFrame(rows).sort_values(['country', 'model', 'ratio'])
 
 
-def fig_sweep(df, out):
-    """Fig. A — few-shot label budget. The headline policy figure."""
+def load_structural(root):
+    """The featureless baseline under the same few-shot protocol, if run."""
+    f = os.path.join(root, 'analysis', 'graph_leakage',
+                     'structural_baseline_fewshot.csv')
+    return pd.read_csv(f) if os.path.exists(f) else None
+
+
+def fig_sweep(df, out, struct=None):
+    """Fig. A — few-shot label budget. The headline policy figure.
+
+    The third line is the point of the figure rather than a detail. Without
+    it a reader cannot tell how much of each curve is learning and how much
+    is label propagation through a graph that, once the target market is
+    partly labelled, can reach almost every test tender.
+    """
     fig, axes = plt.subplots(1, 3, figsize=(W_FULL, W_FULL * 0.34), sharey=True)
     for ax, c in zip(axes, COUNTRIES):
+        if struct is not None:
+            b = struct[struct.country == c].sort_values('label_budget')
+            if len(b):
+                ax.plot(b.label_budget * 100, b.f1_best, marker='^',
+                        color='0.35', ls='--', ms=3.5, lw=1.0,
+                        label='structural baseline (no features)')
         for m, col, mk in [('M4', C_M4, 'o'), ('M3', C_M3, 's')]:
             s = df[(df.country == c) & (df.model == m)]
             ax.errorbar(s.ratio * 100, s.f1, yerr=s.f1_sd, marker=mk,
@@ -192,7 +211,12 @@ def main():
     df = load_sweep(args.results_root)
     df.to_csv(os.path.join(args.out_dir, 'sweep_table.csv'), index=False)
 
-    fig_sweep(df, args.out_dir)
+    struct = load_structural(args.results_root)
+    if struct is None:
+        print('note: structural_baseline_fewshot.csv not found, so the sweep '
+              'figure omits the featureless baseline. Produce it with\n'
+              '      python src/structural_baseline.py --fewshot')
+    fig_sweep(df, args.out_dir, struct)
     fig_coverage(df, args.out_dir)
     fig_cost(args.results_root, args.out_dir)
     fig_attention(args.attention_dir, args.out_dir)
