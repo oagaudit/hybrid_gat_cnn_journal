@@ -83,7 +83,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-Python 3.13, PyTorch 2.11, PyTorch Geometric 2.7. Roughly 12 hours on an
+Python 3.13, PyTorch 2.11, PyTorch Geometric 2.7. Roughly 20 hours on an
 Apple M3 with 16 GB.
 
 ## Data
@@ -153,7 +153,7 @@ liability. Output is intended to prioritise tenders for human review.
   author  = {Nakphon, Mati},
   title   = {When does visual information improve cross-market bid-rigging
              detection? Evidence from three procurement markets},
-  journal = {Journal of Computational Social Science},
+  journal = {...},
   year    = {2026},
   note    = {Under review}
 }
